@@ -1,11 +1,11 @@
 // Offline-first service worker SmartGarden v2.
 // Кэширует приложение, онлайн-базу растений и просмотренные спутниковые тайлы — экономит трафик.
-const CACHE = 'smartgarden-v2';
+const CACHE = 'smartgarden-v2.3.3'; // меняйте при каждом выпуске — старый кэш удалится
 const TILES = 'smartgarden-tiles-v2';
 const MAX_TILES = 400;
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg', './plants-db/plants.json']).catch(() => {})));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg', './plants-db/v2/index.json']).catch(() => {})));
   self.skipWaiting();
 });
 
@@ -45,15 +45,31 @@ self.addEventListener('fetch', (e) => {
   // API (поиск, погода, Википедия) — только сеть, кэшем управляет приложение
   if (url.origin !== location.origin && !url.hostname.includes('fonts.g')) return;
 
-  // База растений: сеть, при ошибке — кэш
-  if (url.pathname.endsWith('/plants.json')) {
+  // Онлайн-база растений (индекс, категории): сеть, при ошибке — кэш
+  if (url.pathname.includes('/plants-db/')) {
     e.respondWith(
       fetch(req)
         .then((res) => {
-          caches.open(CACHE).then((c) => c.put(req, res.clone()));
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
           return res;
         })
         .catch(() => caches.match(req))
+    );
+    return;
+  }
+  // Сама страница приложения: сначала сеть (чтобы обновления приходили сразу), без сети — кэш
+  if (req.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/')) {
+    e.respondWith(
+      fetch(req, { cache: 'no-cache' })
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((hit) => hit || caches.match('./index.html')))
     );
     return;
   }
