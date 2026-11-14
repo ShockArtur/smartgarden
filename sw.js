@@ -1,6 +1,6 @@
 // Offline-first service worker SmartGarden v2.
 // Кэширует приложение, онлайн-базу растений и просмотренные спутниковые тайлы — экономит трафик.
-const CACHE = 'smartgarden-v2.4.1'; // меняйте при каждом выпуске — старый кэш удалится
+const CACHE = 'smartgarden-v2.4.2'; // меняйте при каждом выпуске — старый кэш удалится
 const TILES = 'smartgarden-tiles-v2';
 const MAX_TILES = 400;
 
