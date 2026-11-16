@@ -1,11 +1,11 @@
 // Offline-first service worker SmartGarden v2.
 // Кэширует приложение, онлайн-базу растений и просмотренные спутниковые тайлы — экономит трафик.
-const CACHE = 'smartgarden-v2.10.1'; // меняйте при каждом выпуске — старый кэш удалится
+const CACHE = 'smartgarden-v2.10.2'; // меняйте при каждом выпуске — старый кэш удалится
 const TILES = 'smartgarden-tiles-v2';
 const MAX_TILES = 400;
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg', './plants-db/v2/index.json']).catch(() => {})));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './plants-db/v2/index.json']).catch(() => {})));
   self.skipWaiting();
 });
 
